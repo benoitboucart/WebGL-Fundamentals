@@ -19,7 +19,7 @@
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
     // set the resolution
-    var resolutionLocation = gl.getUniformLocation(program, `u_resolution`);
+    const resolutionLocation = gl.getUniformLocation(program, `u_resolution`);
     gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 
     // setup a rectangle from 10,20 to 80,30 in pixels
