@@ -165,9 +165,9 @@
     
     /**
      * draw 1 rectangle
+     * Now we can put data in that buffer by referencing it through the bind point
+     * Six 2d points (JS array): 2 triangles to draw a rectangle
      */
-    // Now we can put data in that buffer by referencing it through the bind point
-    // 6 2d points (JS array): 2 triangles to draw a rectangle
     var positions = [
       // x, y are set z & w will be default 0 and 1
       // draw a rectangle made from 2 triangles
