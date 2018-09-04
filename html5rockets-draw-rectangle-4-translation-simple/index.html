@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
+
 <body>
   <canvas id="canvas" width="400" height="300"></canvas>
 
@@ -33,12 +35,16 @@
   </script>
 
   <script id="2d-fragment-shader" type="x-shader/x-fragment">
-   void main() {
-      gl_FragColor = vec4(0,1,0,1);  // green
+    precision mediump float;
+    uniform vec4 u_color;
+
+    void main() {
+      gl_FragColor = u_color;
     }
   </script>
 
   <script src="js/libs/webgl-utils.js"></script>
   <script src="js/main.js"></script>
 </body>
+
 </html>
