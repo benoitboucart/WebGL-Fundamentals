@@ -1,6 +1,7 @@
 {
   const vertexShaderSource = `
     // an attribute will receive data from a buffer
+    // vec4 is a 4 dimensional floating point vector (example in JS: a_position = {x: 0, y: 0, z: 0, w: 0})
     attribute vec4 a_position;
     
     // all shaders have a main function
@@ -23,11 +24,11 @@
     }
   `;
 
-  function createShader(gl, type, source) {
-    var shader = gl.createShader(type);
+  const createShader = (gl, type, source) => {
+    const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
-    var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+    const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (success) {
       return shader;
     }
@@ -36,12 +37,12 @@
     gl.deleteShader(shader);
   }
 
-  function createProgram(gl, vertexShader, fragmentShader) {
-    var program = gl.createProgram();
+  const createProgram = (gl, vertexShader, fragmentShader) => {
+    const program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
-    var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+    const success = gl.getProgramParameter(program, gl.LINK_STATUS);
     if (success) {
       return program;
     }
@@ -50,31 +51,32 @@
     gl.deleteProgram(program);
   }
 
-  function init() {
+  const init = () => {
     // Get A WebGL context
-    var canvas = document.querySelector(`#canvas`);
-    var gl = canvas.getContext(`webgl`);
+    const canvas = document.querySelector(`#canvas`);
+    const gl = canvas.getContext(`webgl`);
     if (!gl) {
+      console.log(`No WebGL support!`);
       return;
     }
 
     // Use the strings for our GLSL shaders
     // create GLSL shaders, upload the GLSL source, compile the shaders
-    var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
     // Link the two shaders into a program
-    var program = createProgram(gl, vertexShader, fragmentShader);
+    const program = createProgram(gl, vertexShader, fragmentShader);
 
     // Supply data to program
     // a_position which is an attribute van de vertexShaderSource
     // look up where the vertex data needs to go.
-    var positionAttributeLocation = gl.getAttribLocation(program, `a_position`);
+    const positionAttributeLocation = gl.getAttribLocation(program, `a_position`);
 
     // Attributes get their data from buffers so we need to create a buffer
     // You can think of bind points as internal global variables inside WebGL
     // Create a buffer and put three 2d clip space points in it
-    var positionBuffer = gl.createBuffer();
+    const positionBuffer = gl.createBuffer();
 
     // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -82,9 +84,9 @@
     // Now we can put data in that buffer by referencing it through the bind point
     // three 2d points (JS array)
     var positions = [
-      0, 0,
-      0, 0.5,
-      0.7, 0,
+      0, 0, // x, y are set z & w will be default 0 and 1
+      0, 1,
+      1, 0,
     ];
     // WebGL = strongly typed: JS array omzetten naar 32bit floating point 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -115,18 +117,19 @@
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
     // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-    var size = 2;          // 2 components per iteration
-    var type = gl.FLOAT;   // the data is 32bit floats
-    var normalize = false; // don't normalize the data
-    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;        // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-      positionAttributeLocation, size, type, normalize, stride, offset)
+    const size = 2;           // 2 components per iteration
+    const type = gl.FLOAT;    // the data is 32bit floats
+    const normalize = false;  // don't normalize the data
+    const stride = 0;         // 0 = move forward size * sizeof(type) each iteration to get the next position
+    let offset = 0;           // start at the beginning of the buffer
+    gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset)
 
     // draw
-    var primitiveType = gl.TRIANGLES;
-    var offset = 0;
-    var count = 3;
+    const primitiveType = gl.TRIANGLES;
+    offset = 0;
+    // will execute our vertex shader 3 times
+    // first time: a_position.x & y will be 2 first values, 2nd time 2nd two values etc
+    const count = 3;
     gl.drawArrays(primitiveType, offset, count);
   }
 
