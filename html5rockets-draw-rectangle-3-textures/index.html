@@ -52,7 +52,7 @@
 
     void main() {
       // Look up a color from the texture.
-      gl_FragColor = texture2D(u_image, v_texCoord);
+      gl_FragColor = texture2D(u_image, v_texCoord).bgra; // red and blue are swapped
     }
   </script>
 
