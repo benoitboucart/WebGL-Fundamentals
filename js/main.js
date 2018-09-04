@@ -2,13 +2,24 @@
   const vertexShaderSource = `
     // an attribute will receive data from a buffer
     // vec4 is a 4 dimensional floating point vector (example in JS: a_position = {x: 0, y: 0, z: 0, w: 0})
-    attribute vec4 a_position;
-    
-    // all shaders have a main function
+    // vec2 has only x and y
+    attribute vec2 a_position;
+    uniform vec2 u_resolution;
+  
     void main() {
-      // gl_Position is a special variable a vertex shader
-      // is responsible for setting
-      gl_Position = a_position;
+      // convert the position from pixels to 0.0 to 1.0
+      vec2 zeroToOne = a_position / u_resolution;
+  
+      // convert from 0->1 to 0->2
+      vec2 zeroToTwo = zeroToOne * 2.0;
+  
+      // convert from 0->2 to -1->+1 (clipspace)
+      vec2 clipSpace = zeroToTwo - 1.0;
+      
+      // 0, 0 will be bottom left corner
+      // gl_Position = vec4(clipSpace, 0, 1);
+      // 0, 0 will be top lef corner instead
+      gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
     }
   `;
 
@@ -73,6 +84,8 @@
     // look up where the vertex data needs to go.
     const positionAttributeLocation = gl.getAttribLocation(program, `a_position`);
 
+    const resolutionUniformLocation = gl.getUniformLocation(program, `u_resolution`);
+
     // Attributes get their data from buffers so we need to create a buffer
     // You can think of bind points as internal global variables inside WebGL
     // Create a buffer and put three 2d clip space points in it
@@ -84,9 +97,14 @@
     // Now we can put data in that buffer by referencing it through the bind point
     // three 2d points (JS array)
     var positions = [
-      0, 0, // x, y are set z & w will be default 0 and 1
-      0, 1,
-      1, 0,
+      // x, y are set z & w will be default 0 and 1
+      // draw a rectangle made from 2 triangles
+      10, 20,
+      80, 20,
+      10, 30,
+      10, 30,
+      80, 20,
+      80, 30,
     ];
     // WebGL = strongly typed: JS array omzetten naar 32bit floating point 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -123,13 +141,16 @@
     const stride = 0;         // 0 = move forward size * sizeof(type) each iteration to get the next position
     let offset = 0;           // start at the beginning of the buffer
     gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset)
+    
+    // set the resolution
+    gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
 
     // draw
     const primitiveType = gl.TRIANGLES;
     offset = 0;
-    // will execute our vertex shader 3 times
+    // will execute our vertex shader COUNT times (3 for a triangle)
     // first time: a_position.x & y will be 2 first values, 2nd time 2nd two values etc
-    const count = 3;
+    const count = 6;
     gl.drawArrays(primitiveType, offset, count);
   }
 
