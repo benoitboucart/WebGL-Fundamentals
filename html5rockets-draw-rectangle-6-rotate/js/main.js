@@ -5,7 +5,8 @@
   }
 
   const translation = [0, 0];
-  
+  const rotation = [0, 1];
+
   // Fill the buffer with the values that define a letter 'F'.
   const setGeometry = (gl) => {
     gl.bufferData(
@@ -38,12 +39,15 @@
   }
 
   // Draw a the scene.
-  const drawScene = (gl, translationLocation) => {
+  const drawScene = (gl, translationLocation, rotationLocation) => {
     // Clear the canvas.
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Set the translation.
     gl.uniform2fv(translationLocation, translation);
+
+    // Set the rotation.
+    gl.uniform2fv(rotationLocation, rotation);
 
     // Draw the rectangle.
     gl.drawArrays(gl.TRIANGLES, 0, 18);
@@ -65,6 +69,8 @@
 
     // set the translation
     const translationLocation = gl.getUniformLocation(program, `u_translation`);
+    // set the rotation
+    const rotationLocation = gl.getUniformLocation(program, "u_rotation");
 
     // set the resolution
     const resolutionLocation = gl.getUniformLocation(program, `u_resolution`);
@@ -84,11 +90,17 @@
     setGeometry(gl);
 
     // Draw the scene with translation
-    drawScene(gl, translationLocation);
+    drawScene(gl, translationLocation, rotationLocation);
 
     document.querySelectorAll(`input[type="range"]`).forEach($item => $item.addEventListener(`input`, ({target: $target}) => {
-      translation[$target.dataset.index] = $target.value;
-      drawScene(gl, translationLocation);
+      if ($target.classList.contains(`translate`))
+        translation[$target.dataset.index] = $target.value;
+      if ($target.classList.contains(`rotate`)){
+        const angleInRadians = $target.value * Math.PI / 180;
+        rotation[0] = Math.sin(angleInRadians);
+        rotation[1] = Math.cos(angleInRadians);
+      }
+      drawScene(gl, translationLocation, rotationLocation);
     }));
   }
 
