@@ -115,7 +115,7 @@
     
     // look up uniform locations
     const resolutionUniformLocation = gl.getUniformLocation(program, `u_resolution`);
-    const colorUniformLocation = gl.getUniformLocation(program, "u_color");
+    const colorUniformLocation = gl.getUniformLocation(program, `u_color`);
 
     // Attributes get their data from buffers so we need to create a buffer
     // You can think of bind points as internal global variables inside WebGL
