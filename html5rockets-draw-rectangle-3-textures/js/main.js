@@ -20,7 +20,7 @@
     ]), gl.STATIC_DRAW);
   }
 
-  const init = () => {
+  const render = image => {
     // Get A WebGL context
     const canvas = document.getElementById(`canvas`);
     const gl = canvas.getContext(`experimental-webgl`);
@@ -28,7 +28,7 @@
     // setup a GLSL program
     // const vertexShader = webglUtils.createShaderFromScript(gl, `2d-vertex-shader`);
     // const fragmentShader = webglUtils.createShaderFromScript(gl, `2d-fragment-shader`);
-    const {program} = webglUtils.createProgramInfo(gl, [`2d-vertex-shader`, `2d-fragment-shader`]);
+    const { program } = webglUtils.createProgramInfo(gl, [`2d-vertex-shader`, `2d-fragment-shader`]);
     gl.useProgram(program);
 
     // look up where the vertex data needs to go.
@@ -37,7 +37,36 @@
     // set the resolution
     const resolutionLocation = gl.getUniformLocation(program, `u_resolution`);
     gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-    const colorLocation = gl.getUniformLocation(program, `u_color`);
+    /** start texture code **/
+    // look up where the texture coordinates need to go.
+    const texCoordLocation = gl.getAttribLocation(program, `a_texCoord`);
+
+    // provide texture coordinates for the rectangle.
+    const texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      0.0, 0.0,
+      1.0, 0.0,
+      0.0, 1.0,
+      0.0, 1.0,
+      1.0, 0.0,
+      1.0, 1.0]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(texCoordLocation);
+    gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+    // Create a texture.
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    // Upload the image into the texture.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    /** end texture code **/
 
     // Create a buffer
     const buffer = gl.createBuffer();
@@ -50,12 +79,17 @@
       // Setup a random rectangle
       setRectangle(gl, randomInt(300), randomInt(300), randomInt(300), randomInt(300));
 
-      // Set a random color.
-      gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
-
       // Draw the rectangle.
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
+  }
+
+  const init = () => {
+    const image = new Image();
+    image.src = `assets/img/devine.jpg`;  // MUST BE SAME DOMAIN!!!
+    image.addEventListener(`load`, () => {
+      render(image);
+    });
   }
 
   init();
