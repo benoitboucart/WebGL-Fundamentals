@@ -4,35 +4,49 @@
     return Math.floor(Math.random() * range);
   }
 
-  // Fills the buffer with the values that define a rectangle.
-  const setRectangle = (gl, x, y, width, height) => {
-    const x1 = x;
-    const x2 = x + width;
-    const y1 = y;
-    const y2 = y + height;
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      x1, y1,
-      x2, y1,
-      x1, y2,
-      x1, y2,
-      x2, y1,
-      x2, y2
-    ]), gl.STATIC_DRAW);
+  const translation = [0, 0];
+  
+  // Fill the buffer with the values that define a letter 'F'.
+  const setGeometry = (gl) => {
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        // left column
+        0, 0,
+        30, 0,
+        0, 150,
+        0, 150,
+        30, 0,
+        30, 150,
+
+        // top rung
+        30, 0,
+        100, 0,
+        30, 30,
+        30, 30,
+        100, 0,
+        100, 30,
+
+        // middle rung
+        30, 60,
+        67, 60,
+        30, 90,
+        30, 90,
+        67, 60,
+        67, 90]),
+      gl.STATIC_DRAW);
   }
 
-  let translation = [120, 0];
-  const width = 300;
-  const height = 150;
-
   // Draw a the scene.
-  const drawScene = (gl) => {
+  const drawScene = (gl, translationLocation) => {
     // Clear the canvas.
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // Setup a rectangle
-    setRectangle(gl, translation[0], translation[1], width, height);
+    // Set the translation.
+    gl.uniform2fv(translationLocation, translation);
+
     // Draw the rectangle.
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.drawArrays(gl.TRIANGLES, 0, 18);
   }
 
   const init = () => {
@@ -49,10 +63,16 @@
     // look up where the vertex data needs to go.
     const positionLocation = gl.getAttribLocation(program, `a_position`);
 
+    // set the translation
+    const translationLocation = gl.getUniformLocation(program, `u_translation`);
+
     // set the resolution
     const resolutionLocation = gl.getUniformLocation(program, `u_resolution`);
     gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
     const colorLocation = gl.getUniformLocation(program, `u_color`);
+
+    // Set a random color.
+    gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
 
     // Create a buffer
     const buffer = gl.createBuffer();
@@ -60,10 +80,16 @@
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // Set a random color.
-    gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
+    // Setup a F shape
+    setGeometry(gl);
 
-    drawScene(gl);
+    // Draw the scene with translation
+    drawScene(gl, translationLocation);
+
+    document.querySelectorAll(`input[type="range"]`).forEach($item => $item.addEventListener(`input`, ({target: $target}) => {
+      translation[$target.dataset.index] = $target.value;
+      drawScene(gl, translationLocation);
+    }));
   }
 
   init();
