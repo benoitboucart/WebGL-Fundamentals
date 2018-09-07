@@ -25,6 +25,9 @@
         tx, ty, 1,
       ];
     },
+    translate: (m, tx, ty) => {
+      return m3.multiply(m, m3.translation(tx, ty));
+    },
 
     rotation: angleInRadians => {
       const c = Math.cos(angleInRadians);
@@ -35,6 +38,9 @@
         0, 0, 1,
       ];
     },
+    rotate: (m, angleInRadians) => {
+      return m3.multiply(m, m3.rotation(angleInRadians));
+    },
 
     scaling: (sx, sy) => {
       return [
@@ -42,6 +48,9 @@
         0, sy, 0,
         0, 0, 1,
       ];
+    },
+    scale: (m, sx, sy) => {
+      return m3.multiply(m, m3.scaling(sx, sy));
     },
 
     multiply: (a, b) => {
@@ -82,7 +91,7 @@
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
     // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0, 0, gl.canvas.clientWidth, gl.canvas.clientHeight);
 
     // Clear the canvas.
     gl.clear(gl.COLOR_BUFFER_BIT);
