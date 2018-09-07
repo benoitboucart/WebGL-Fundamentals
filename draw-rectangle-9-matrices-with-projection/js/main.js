@@ -9,6 +9,15 @@
       ];
     },
 
+    projection: (width, height) => {
+      // Note: This matrix flips the Y axis so that 0 is at the top.
+      return [
+        2 / width, 0, 0,
+        0, -2 / height, 0,
+        -1, 1, 1
+      ];
+    },
+    
     translation: (tx, ty) => {
       return [
         1, 0, 0,
@@ -107,6 +116,8 @@
      */
     // Starting Matrix.
     let matrix = m3.identity();
+    // Projection matrix
+    matrix = m3.multiply(matrix, m3.projection(gl.canvas.width, gl.canvas.height));
 
     for (let i = 0; i < 5; ++i) {
       // Multiply the matrices.
@@ -143,8 +154,9 @@
     const positionLocation = gl.getAttribLocation(program, "a_position");
 
     // lookup uniforms
-    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-    gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+    // NOT NEEDED ANYMORE: we use projection matrix
+    // const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    // gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 
     const colorLocation = gl.getUniformLocation(program, "u_color");
     const color = [Math.random(), Math.random(), Math.random(), 1];
