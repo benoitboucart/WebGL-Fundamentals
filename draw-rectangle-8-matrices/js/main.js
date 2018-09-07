@@ -1,6 +1,14 @@
 {
 
   const m3 = {
+    identity: () => {
+      return [
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1,
+      ];
+    },
+
     translation: (tx, ty) => {
       return [
         1, 0, 0,
@@ -75,26 +83,48 @@
     const rotationMatrix = m3.rotation(angleInRadians);
     const scaleMatrix = m3.scaling(scale[0], scale[1]);
 
-    // Multiply the matrices.
-    let matrix = m3.multiply(translationMatrix, rotationMatrix);
-    matrix = m3.multiply(matrix, scaleMatrix);
-    // Try this instead (different orders)
-    // let matrix = m3.multiply(scaleMatrix, rotationMatrix);
-    // matrix = m3.multiply(matrix, translationMatrix);
+    /** 
+     * ONE F
+     */
+    // // Multiply the matrices.
+    // let matrix = m3.multiply(translationMatrix, rotationMatrix);
+    // matrix = m3.multiply(matrix, scaleMatrix);
+    // // Try this instead (different orders)
+    // // let matrix = m3.multiply(scaleMatrix, rotationMatrix);
+    // // matrix = m3.multiply(matrix, translationMatrix);
 
-    // Set the matrix.
-    gl.uniformMatrix3fv(matrixLocation, false, matrix);
+    // // Set the matrix.
+    // gl.uniformMatrix3fv(matrixLocation, false, matrix);
 
-    // Draw the geometry.
-    const primitiveType = gl.TRIANGLES;
-    offset = 0;
-    const count = 18;  // 6 triangles in the 'F', 3 points per triangle
-    gl.drawArrays(primitiveType, offset, count);
+    // // Draw the geometry.
+    // const primitiveType = gl.TRIANGLES;
+    // offset = 0;
+    // const count = 18;  // 6 triangles in the 'F', 3 points per triangle
+    // gl.drawArrays(primitiveType, offset, count);
+
+    /** 
+     * FIVE F's
+     */
+    // Starting Matrix.
+    let matrix = m3.identity();
+
+    for (let i = 0; i < 5; ++i) {
+      // Multiply the matrices.
+      matrix = m3.multiply(matrix, translationMatrix);
+      matrix = m3.multiply(matrix, rotationMatrix);
+      matrix = m3.multiply(matrix, scaleMatrix);
+
+      // Set the matrix.
+      gl.uniformMatrix3fv(matrixLocation, false, matrix);
+
+      // Draw the geometry.
+      gl.drawArrays(gl.TRIANGLES, 0, 18);
+    }
   }
 
-  let translation = [100, 150];
+  let translation = [60, 40];
   let angleInRadians = 0;
-  let scale = [1, 1];
+  let scale = [0.85, 0.85];
 
   const init = () => {
     // Get A WebGL context
