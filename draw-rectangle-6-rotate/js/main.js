@@ -6,7 +6,6 @@
 
   const translation = [0, 0];
   const rotation = [0, 1];
-  const scale = [1, 1];
 
   // Fill the buffer with the values that define a letter 'F'.
   const setGeometry = (gl) => {
@@ -40,7 +39,7 @@
   }
 
   // Draw a the scene.
-  const drawScene = (gl, translationLocation, rotationLocation, scaleLocation) => {
+  const drawScene = (gl, translationLocation, rotationLocation) => {
     // Clear the canvas.
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -50,14 +49,8 @@
     // Set the rotation.
     gl.uniform2fv(rotationLocation, rotation);
 
-    // Set the scale.
-    gl.uniform2fv(scaleLocation, scale);
-
-    // Draw the geometry (F shape)
-    const primitiveType = gl.TRIANGLES;
-    const offset = 0;
-    const count = 18;  // 6 triangles in the 'F', 3 points per triangle
-    gl.drawArrays(primitiveType, offset, count);
+    // Draw the rectangle.
+    gl.drawArrays(gl.TRIANGLES, 0, 18);
   }
 
   const init = () => {
@@ -78,8 +71,6 @@
     const translationLocation = gl.getUniformLocation(program, `u_translation`);
     // set the rotation
     const rotationLocation = gl.getUniformLocation(program, "u_rotation");
-    // set the scale
-    const scaleLocation = gl.getUniformLocation(program, "u_scale");
 
     // set the resolution
     const resolutionLocation = gl.getUniformLocation(program, `u_resolution`);
@@ -99,7 +90,7 @@
     setGeometry(gl);
 
     // Draw the scene with translation
-    drawScene(gl, translationLocation, rotationLocation, scaleLocation);
+    drawScene(gl, translationLocation, rotationLocation);
 
     document.querySelectorAll(`input[type="range"]`).forEach($item => $item.addEventListener(`input`, ({target: $target}) => {
       if ($target.classList.contains(`translate`))
@@ -109,9 +100,7 @@
         rotation[0] = Math.sin(angleInRadians);
         rotation[1] = Math.cos(angleInRadians);
       }
-      if ($target.classList.contains(`scale`))
-        scale[$target.dataset.index] = $target.value / 100;
-      drawScene(gl, translationLocation, rotationLocation, scaleLocation);
+      drawScene(gl, translationLocation, rotationLocation);
     }));
   }
 
