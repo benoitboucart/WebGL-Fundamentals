@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>WebGL Getting started</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+
+<body>
+  <canvas id="canvas" width="400" height="300"></canvas>
+  <div class="slidecontainer">
+    <label>X:</label>
+    <input type="range" min="0" max="400" value="60" class="slider translate" data-index="0">
+    <label>Y:</label>
+    <input type="range" min="0" max="300" value="40" class="slider translate" data-index="1">
+    <label>rotation (0-360deg):</label>
+    <input type="range" min="0" max="360" value="0" class="slider rotate">
+    <label>scale X:</label>
+    <input type="range" min="-500" max="500" value="85" class="slider scale" data-index="0">
+    <label>scale Y:</label>
+    <input type="range" min="-500" max="500" value="85" class="slider scale" data-index="1">
+  </div>
+
+  <script id="2d-vertex-shader" type="x-shader/x-vertex">
+    attribute vec2 a_position;
+
+    uniform vec2 u_resolution;
+    uniform mat3 u_matrix;
+
+    void main() {
+      // Multiply the position by the matrix.
+      vec2 position = (u_matrix * vec3(a_position, 1)).xy;
+
+      // convert the position from pixels to 0.0 to 1.0
+      vec2 zeroToOne = position / u_resolution;
+
+      // convert from 0->1 to 0->2
+      vec2 zeroToTwo = zeroToOne * 2.0;
+
+      // convert from 0->2 to -1->+1 (clipspace)
+      vec2 clipSpace = zeroToTwo - 1.0;
+
+      gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+    }
+  </script>
+  <!-- fragment shader -->
+  <script id="2d-fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    uniform vec4 u_color;
+
+    void main() {
+      gl_FragColor = u_color;
+    }
+  </script>
+
+  <script src="js/libs/webgl-utils.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
